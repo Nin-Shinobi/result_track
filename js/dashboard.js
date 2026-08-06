@@ -19,6 +19,12 @@ export function ecuNoteClass(n) {
   return n >= 7 ? "good" : "bad";
 }
 
+export function ueNoteClass(u) {
+  if (u.note === null && !u.statut) return "bad";
+  const valide = u.statut ? u.statut === "V" : u.note >= 10;
+  return valide ? "good" : "bad";
+}
+
 export function escapeHtml(s = "") {
   return String(s)
     .replace(/&/g, "&amp;")
@@ -96,7 +102,7 @@ export function renderClass(container, stats, students) {
   const cards = container.querySelector("#class-cards");
   cards.innerHTML = [
     card(`${stats.effectif}`, "Étudiants"),
-    card(fmt(stats.moyenneClasse), "Moyenne de la classe"),
+    card(fmt(stats.moyenneClasse), "Moyenne de la classe", mentionClass(stats.moyenneClasse)),
     card(`${stats.reussite}`, "Étudiants ≥ 10"),
     card(`${fmt(stats.tauxReussite)}%`, "Taux de réussite"),
   ].join("");
@@ -104,7 +110,7 @@ export function renderClass(container, stats, students) {
   barChart(container.querySelector("#class-histogram"), stats.distribution.map((d) => ({
     label: d.label,
     value: d.count,
-    class: d.label === "<10" ? "bad" : d.label === "10-12" || d.label === "12-14" ? "warn" : "good",
+    class: d.label === "<10" ? "bad" : d.label === "10-12" ? "warn" : "good",
   })), { scale: "auto", max: 1, emptyText: "Aucune moyenne calculée" });
 
   donut(container.querySelector("#class-semesters"), stats.tauxReussite, "#1a7f37", `${fmt(stats.tauxReussite)}%`, [
@@ -122,7 +128,7 @@ export function renderClass(container, stats, students) {
         <tr class="rank-row" data-key="${escapeHtml(s.key)}">
           <td class="num">${i + 1}</td>
           <td><strong>${escapeHtml(s.nomDisplay)}</strong></td>
-          <td class="num"><span class="note-badge ${noteClass(s.moyenne)}">${fmt(s.moyenne)}</span></td>
+          <td class="num"><span class="note-badge ${mentionClass(s.moyenne)}">${fmt(s.moyenne)}</span></td>
           <td><span class="pill ${mentionClass(s.moyenne)}">${escapeHtml(s.mention)}</span></td>
           <td class="num">${s.semestres.filter((sm) => sm.valide).length}/${s.semestres.length}</td>
           <td class="num">${s.creditsAcquis}/${s.creditsTotal}</td>
@@ -137,8 +143,8 @@ export function renderClass(container, stats, students) {
   });
 }
 
-function card(value, label) {
-  return `<div class="card stat-card"><div class="stat-value">${value}</div><div class="stat-label">${label}</div></div>`;
+function card(value, label, color = "") {
+  return `<div class="card stat-card"><div class="stat-value ${color}">${value}</div><div class="stat-label">${label}</div></div>`;
 }
 
 /* ---------- Student view ---------- */
@@ -218,14 +224,14 @@ export function renderStudent(root, student, stats, students) {
   barChart(root.querySelector("#student-semester-chart"), student.semestres.map((sm) => ({
     label: sm.name,
     value: sm.moyenne,
-    class: noteClass(sm.moyenne),
+    class: mentionClass(sm.moyenne),
     title: `${sm.name} : ${fmt(sm.moyenne)}`,
   })), { max: 20, emptyText: "Aucun semestre" });
 
   barChart(root.querySelector("#student-notes-chart"), student.ues.map((u) => ({
     label: u.code || u.label.slice(0, 8),
     value: u.note,
-    class: noteClass(u.note),
+    class: ueNoteClass(u),
     title: `${u.code || u.label} (${u.semestre}) : ${u.noteText || "Absence"}`,
   })), { max: 20, emptyText: "Aucune note" });
 
@@ -235,7 +241,7 @@ export function renderStudent(root, student, stats, students) {
       <div class="semestre-header">
         <h3>Semestre ${escapeHtml(sm.name.replace(/[Ss]emestre\s*/i, "")) || escapeHtml(sm.name)}</h3>
         <div class="semestre-stats">
-          <span>Moyenne : <strong>${fmt(sm.moyenne)}</strong></span>
+          <span>Moyenne : <strong class="note-badge ${mentionClass(sm.moyenne)}">${fmt(sm.moyenne)}</strong></span>
           <span>Crédits : <strong>${sm.creditsAcquis}/${sm.ues.reduce((s, u) => s + (u.credit || 0), 0)}</strong></span>
           <span class="pill ${sm.valide ? "green" : "red"}">${sm.valide ? "Validé" : "Non validé"}</span>
         </div>
@@ -250,7 +256,7 @@ export function renderStudent(root, student, stats, students) {
               <tr>
                 <td><strong>${escapeHtml(u.code)}</strong></td>
                 <td>${escapeHtml(u.label)}</td>
-                <td class="num"><span class="note-badge ${noteClass(u.note)}">${u.noteText || ""}</span></td>
+                <td class="num"><span class="note-badge ${ueNoteClass(u)}">${u.noteText || ""}</span></td>
                 <td class="num">${u.credit}</td>
                 <td>${statusPill(u)}</td>
               </tr>

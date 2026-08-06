@@ -44,7 +44,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-#app-wrap { flex: 1 0 auto; }
+#app-wrap { flex: 1 0 auto; display: flex; flex-direction: column; }
 
 .hidden { display: none !important; }
 .muted { color: var(--ink-soft); }
@@ -165,8 +165,10 @@ body {
 .grid {
   display: grid;
   grid-template-columns: repeat(var(--cols), 1fr);
+  grid-template-rows: 1fr;
   column-gap: var(--gutter);
   row-gap: var(--lh);
+  flex: 1;
 }
 .band {
   grid-column: 1 / -1;
@@ -282,10 +284,7 @@ body {
 .shead { font-weight: 800; letter-spacing: -.015em; line-height: calc(var(--bl) * 4); }
 
 /* ---------- Upload ---------- */
-#page-upload {
-  min-height: calc(100vh - 140px);
-  align-content: center;
-}
+#page-upload { align-content: center; }
 .upload-cell { grid-column: 3 / 11; }
 .dropzone {
   border: 1px solid var(--ink);
@@ -417,6 +416,9 @@ body {
   font-variant-numeric: tabular-nums;
   letter-spacing: -.02em;
 }
+.stat-value.green { color: var(--ok); }
+.stat-value.amber { color: var(--warn); }
+.stat-value.red { color: var(--err); }
 .stat-card .stat-label {
   font-family: var(--mono);
   font-size: 10px;
@@ -456,6 +458,9 @@ body {
 .bar-col .bar.good { background: var(--ok); }
 .bar-col .bar.warn { background: var(--warn); }
 .bar-col .bar.bad { background: var(--err); }
+.bar-col .bar.green { background: var(--ok); }
+.bar-col .bar.amber { background: var(--warn); }
+.bar-col .bar.red { background: var(--err); }
 .bar-col .bar-label {
   font-family: var(--mono);
   font-size: 10px;
@@ -576,6 +581,9 @@ body {
 .note-badge.good { color: var(--ok); }
 .note-badge.warn { color: var(--warn); }
 .note-badge.bad { color: var(--err); }
+.note-badge.green { color: var(--ok); }
+.note-badge.amber { color: var(--warn); }
+.note-badge.red { color: var(--err); }
 
 /* ---------- Student ---------- */
 .student-hero {
