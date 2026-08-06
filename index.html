@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResultTrack · Grille de notes LMD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="wrap topbar-wrap">
+      <div class="brand">
+        <span class="brand-logo" aria-hidden="true">RT</span>
+        <h1 class="masthead">ResultTrack</h1>
+      </div>
+      <nav class="nav" aria-label="Navigation principale">
+        <button class="nav-btn active" data-page="home">Accueil</button>
+        <button class="nav-btn" data-page="about">À propos</button>
+        <button class="nav-btn" data-page="upload">Charger</button>
+      </nav>
+      <div class="topbar-meta">
+        <span id="grid-semestre" class="chip hidden"></span>
+        <span id="file-status" class="file-status">Aucune grille chargée</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap" id="app-wrap">
+    <div class="grid">
+
+      <!-- ===== Accueil ===== -->
+      <section id="page-home" class="page">
+        <div class="band home-hero">
+          <div class="span-6 home-hero-copy">
+            <p class="kicker">Grille de notes · Système LMD</p>
+            <h2 class="shead home-title">De votre grille PDF au tableau de bord</h2>
+            <p class="lead">Importez votre grille de notes au format PDF. ResultTrack extrait les notes, calcule les moyennes et les mentions LMD, puis affiche le bilan de la classe et de chaque étudiant.</p>
+            <button class="btn btn-primary" data-go="upload">Charger une grille</button>
+          </div>
+          <ol class="span-6 home-steps">
+            <li class="step">
+              <span class="step-num numeral">01</span>
+              <div class="step-body"><h3>Import</h3><p>Déposez votre grille de notes PDF — elle n'est jamais envoyée, tout se passe dans votre navigateur.</p></div>
+            </li>
+            <li class="step">
+              <span class="step-num numeral">02</span>
+              <div class="step-body"><h3>Analyse</h3><p>Le semestre est détecté dans le nom du fichier ; les UE, crédits et notes sont extraits automatiquement.</p></div>
+            </li>
+            <li class="step">
+              <span class="step-num numeral">03</span>
+              <div class="step-body"><h3>Bilan</h3><p>Moyenne de la classe, mentions, crédits validés et classement de chaque étudiant.</p></div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ===== À propos ===== -->
+      <section id="page-about" class="page hidden">
+        <div class="band">
+          <div class="span-8">
+            <p class="kicker">À propos</p>
+            <h2 class="shead">Un outil de lecture des grilles de notes</h2>
+            <p>ResultTrack transforme une grille de notes LMD au format PDF en un tableau de bord clair : moyennes, mentions, crédits acquis, taux de réussite et classement.</p>
+            <p>La plateforme s'adapte au semestre unique de la grille importée : il est détecté dans le nom du fichier (par exemple « Sem2 » dans <em>Grille_Notes_L_IRT_Sem2_2025-2026.pdf</em>).</p>
+            <h3 class="shead">Barème LMD</h3>
+            <div class="table-wrap">
+              <table class="table table-sm about-table">
+                <thead><tr><th>Moyenne</th><th>Résultat</th></tr></thead>
+                <tbody>
+                  <tr><td class="num">≥ 16</td><td>Très Bien</td></tr>
+                  <tr><td class="num">≥ 14</td><td>Bien</td></tr>
+                  <tr><td class="num">≥ 12</td><td>Assez Bien</td></tr>
+                  <tr><td class="num">≥ 10</td><td>Admis</td></tr>
+                  <tr><td class="num">&lt; 10</td><td>Ajourné</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <aside class="span-4 card about-card">
+            <h3>Confidentialité</h3>
+            <p>Le traitement est 100 % local : votre fichier reste sur votre machine, aucune donnée n'est transmise.</p>
+            <h3>Technique</h3>
+            <p>Extraction PDF via <strong>pdf.js 4.8.69</strong>, interface en JavaScript natif, sans framework ni serveur.</p>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ===== Charger ===== -->
+      <section id="page-upload" class="page hidden">
+        <div id="upload-section" class="upload-cell">
+          <div id="dropzone" class="dropzone">
+            <input type="file" id="file-input" accept="application/pdf,.pdf" hidden />
+            <span class="dropzone-icon" aria-hidden="true">↑</span>
+            <p class="kicker">Format PDF — 100 % local</p>
+            <h2 class="shead">Déposez votre grille de notes</h2>
+            <p class="lead">Glissez votre fichier ici ou <button id="browse-btn" class="link-btn">parcourez</button>. L'analyse se fait dans votre navigateur, aucune donnée ne quitte votre machine.</p>
+          </div>
+          <div id="load-progress" class="progress hidden">
+            <div class="progress-bar"><span id="progress-fill"></span></div>
+            <p id="progress-label">Lecture du PDF…</p>
+          </div>
+        </div>
+
+        <!-- ===== Mapping manuel ===== -->
+        <div id="mapping-section" class="card span-13 hidden">
+          <h3 class="shead">Assignation des colonnes</h3>
+          <p class="muted">Le format du tableau n'a pas été entièrement reconnu. Indiquez quelle colonne correspond à quel champ.</p>
+          <div id="mapping-rows" class="mapping-rows"></div>
+          <div class="mapping-actions">
+            <button id="mapping-cancel" class="btn btn-ghost">Annuler</button>
+            <button id="mapping-apply" class="btn btn-primary">Valider l'import</button>
+          </div>
+        </div>
+
+        <!-- ===== Dashboard ===== -->
+        <section id="dashboard-section" class="span-13 hidden">
+          <div class="dashboard-header">
+            <div class="tabs">
+              <button class="tab-btn active" data-tab="class">Ma classe</button>
+              <button class="tab-btn" data-tab="student">Étudiant</button>
+            </div>
+            <div class="student-picker">
+              <input type="search" id="student-search" placeholder="Rechercher un étudiant…" autocomplete="off" />
+              <select id="student-select"></select>
+              <button id="reload-btn" class="btn btn-ghost" title="Charger une autre grille">↺</button>
+            </div>
+          </div>
+
+          <!-- Vue classe -->
+          <div id="view-class" class="tab-panel">
+            <div class="cards-grid band" id="class-cards"></div>
+            <div class="charts-grid band">
+              <div class="card span-6"><h3 class="shead">Distribution des moyennes</h3><div id="class-histogram" class="chart"></div></div>
+              <div class="card span-6"><h3 class="shead">Taux de réussite par semestre</h3><div id="class-semesters" class="chart"></div></div>
+            </div>
+            <div class="card span-13">
+              <h3 class="shead">Classement de la classe</h3>
+              <div class="table-wrap"><table id="class-ranking" class="table"></table></div>
+            </div>
+          </div>
+
+          <!-- Vue étudiant -->
+          <div id="view-student" class="tab-panel hidden">
+            <div id="student-empty" class="empty-state span-13">
+              <p>Sélectionnez un étudiant pour afficher ses résultats.</p>
+            </div>
+            <div id="student-content" class="grid-panel hidden">
+              <div class="student-hero band">
+                <div class="avatar" id="student-avatar"></div>
+                <div class="student-hero-info">
+                  <h2 id="student-name"></h2>
+                  <p id="student-subtitle" class="muted"></p>
+                </div>
+                <div class="student-hero-stats">
+                  <div class="stat"><span class="stat-value" id="stat-moyenne"></span><span class="stat-label">Moyenne</span></div>
+                  <div class="stat"><span class="stat-value" id="stat-mention"></span><span class="stat-label">Mention</span></div>
+                  <div class="stat"><span class="stat-value" id="stat-credits"></span><span class="stat-label">Crédits acquis</span></div>
+                  <div class="stat"><span class="stat-value" id="stat-rang"></span><span class="stat-label">Rang</span></div>
+                </div>
+              </div>
+              <div class="charts-grid band">
+                <div class="card span-6"><h3 class="shead">Moyenne par semestre</h3><div id="student-semester-chart" class="chart"></div></div>
+                <div class="card span-6"><h3 class="shead">Répartition des notes</h3><div id="student-notes-chart" class="chart"></div></div>
+              </div>
+              <div id="student-semesters" class="band"></div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-wrap">
+      <div class="footer-grid">
+        <div class="brand">
+          <span class="brand-logo" aria-hidden="true">RT</span>
+          <span class="footer-name">ResultTrack</span>
+        </div>
+        <p class="footer-note">Traitement 100 % local — vos données restent sur votre machine.</p>
+        <p class="footer-meta">Grilles de notes LMD · 2026</p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
