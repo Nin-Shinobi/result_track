@@ -11,11 +11,18 @@ export function normalizeName(s = "") {
 
 export function mentionOf(moyenne) {
   if (moyenne === null || isNaN(moyenne)) return "";
-  if (moyenne >= 16) return "Très Bien";
-  if (moyenne >= 14) return "Bien";
-  if (moyenne >= 12) return "Assez Bien";
+  if (moyenne >= 18) return "Très Bien";
+  if (moyenne >= 16) return "Bien";
+  if (moyenne >= 14) return "Assez Bien";
   if (moyenne >= 10) return "Passable";
-  return "Ajourné";
+  return "Échec";
+}
+
+export function mentionClass(moyenne) {
+  if (moyenne === null || isNaN(moyenne)) return "red";
+  if (moyenne >= 14) return "green";
+  if (moyenne >= 10) return "amber";
+  return "red";
 }
 
 function semesterOrder(s) {

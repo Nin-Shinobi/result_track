@@ -17,7 +17,7 @@
         <span class="brand-logo" aria-hidden="true">RT</span>
         <h1 class="masthead">ResultTrack</h1>
       </div>
-      <nav class="nav" aria-label="Navigation principale">
+      <nav class="nav" id="primary-nav" aria-label="Navigation principale">
         <button class="nav-btn active" data-page="home">Accueil</button>
         <button class="nav-btn" data-page="about">À propos</button>
         <button class="nav-btn" data-page="upload">Charger</button>
@@ -26,6 +26,9 @@
         <span id="grid-semestre" class="chip hidden"></span>
         <span id="file-status" class="file-status">Aucune grille chargée</span>
       </div>
+      <button id="nav-toggle" class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="primary-nav">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </header>
 
@@ -56,6 +59,33 @@
             </li>
           </ol>
         </div>
+
+        <div class="band home-features">
+          <div class="span-12 feature-head">
+            <p class="kicker">Ce que ResultTrack calcule</p>
+            <h2 class="shead">Des chiffres clairs, du barème à la validation</h2>
+          </div>
+          <div class="span-3 feature-block">
+            <span class="feature-num numeral">01</span>
+            <h3>Moyennes pondérées</h3>
+            <p>Calculées par crédit, pour chaque UE, chaque semestre et sur l'ensemble du cursus.</p>
+          </div>
+          <div class="span-3 feature-block">
+            <span class="feature-num numeral">02</span>
+            <h3>Mentions LMD</h3>
+            <p>Très Bien, Bien, Assez Bien, Passable ou Échec, selon le barème officiel.</p>
+          </div>
+          <div class="span-3 feature-block">
+            <span class="feature-num numeral">03</span>
+            <h3>Validation des ECU</h3>
+            <p>Chaque ECU doit atteindre 7/20 de moyenne pour être validé et porter ses crédits.</p>
+          </div>
+          <div class="span-3 feature-block">
+            <span class="feature-num numeral">04</span>
+            <h3>Crédits et classement</h3>
+            <p>Crédits acquis par semestre, rang de chaque étudiant et taux de réussite de la classe.</p>
+          </div>
+        </div>
       </section>
 
       <!-- ===== À propos ===== -->
@@ -66,21 +96,30 @@
             <h2 class="shead">Un outil de lecture des grilles de notes</h2>
             <p>ResultTrack transforme une grille de notes LMD au format PDF en un tableau de bord clair : moyennes, mentions, crédits acquis, taux de réussite et classement.</p>
             <p>La plateforme s'adapte au semestre unique de la grille importée : il est détecté dans le nom du fichier (par exemple « Sem2 » dans <em>Grille_Notes_L_IRT_Sem2_2025-2026.pdf</em>).</p>
-            <h3 class="shead">Barème LMD</h3>
+            <h3 class="shead">Validation</h3>
+            <p>Chaque ECU est validé dès que sa moyenne atteint 7/20. Une UE est validée lorsque la moyenne de ses ECU atteint 10/20 ; ses crédits sont alors acquis. La mention globale est déterminée par la moyenne pondérée de l'étudiant, selon le barème ci-dessous.</p>
+            <h3 class="shead">Barème</h3>
             <div class="table-wrap">
               <table class="table table-sm about-table">
-                <thead><tr><th>Moyenne</th><th>Résultat</th></tr></thead>
+                <thead><tr><th>Moyenne / 20</th><th>Mention</th></tr></thead>
                 <tbody>
-                  <tr><td class="num">≥ 16</td><td>Très Bien</td></tr>
-                  <tr><td class="num">≥ 14</td><td>Bien</td></tr>
-                  <tr><td class="num">≥ 12</td><td>Assez Bien</td></tr>
-                  <tr><td class="num">≥ 10</td><td>Admis</td></tr>
-                  <tr><td class="num">&lt; 10</td><td>Ajourné</td></tr>
+                  <tr><td class="num">18,00 à 20,00</td><td><span class="pill green">Très Bien</span></td></tr>
+                  <tr><td class="num">16,00 à 17,99</td><td><span class="pill green">Bien</span></td></tr>
+                  <tr><td class="num">14,00 à 15,99</td><td><span class="pill green">Assez Bien</span></td></tr>
+                  <tr><td class="num">10,00 à 13,99</td><td><span class="pill amber">Passable</span></td></tr>
+                  <tr><td class="num">moins de 10,00</td><td><span class="pill red">Échec</span></td></tr>
                 </tbody>
               </table>
             </div>
           </div>
           <aside class="span-4 card about-card">
+            <h3>Règles</h3>
+            <ul class="rules">
+              <li>ECU validé : moyenne ≥ 7/20</li>
+              <li>UE validée : moyenne ≥ 10/20</li>
+              <li>Mention : barème LMD ci-contre</li>
+              <li>Absence : note non comptée</li>
+            </ul>
             <h3>Confidentialité</h3>
             <p>Le traitement est 100 % local : votre fichier reste sur votre machine, aucune donnée n'est transmise.</p>
             <h3>Technique</h3>
@@ -178,9 +217,8 @@
   <footer class="footer">
     <div class="wrap footer-wrap">
       <div class="footer-grid">
-        <div class="brand">
+        <div class="brand footer-brand">
           <span class="brand-logo" aria-hidden="true">RT</span>
-          <span class="footer-name">ResultTrack</span>
         </div>
         <p class="footer-note">Traitement 100 % local — vos données restent sur votre machine.</p>
         <p class="footer-meta">Grilles de notes LMD · 2026</p>

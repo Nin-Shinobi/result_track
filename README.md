@@ -67,7 +67,7 @@ resultrack/
 | **Grille LMD** | en-têtes « Note », « Crédits », « Semestre » | Nom, Prénom, UE, Note, Crédits, Semestre |
 | **Relevé générique** | sans marqueurs de grille | Nom, Prénom, UE, Note, Crédits (mapping manuel possible) |
 
-Les mentions suivent le barème LMD : validation ≥ 10, Assez Bien ≥ 12, Bien ≥ 14, Très Bien ≥ 16.
+Les mentions suivent le barème : Très Bien ≥ 18, Bien ≥ 16, Assez Bien ≥ 14, Passable ≥ 10, Échec < 10. Un ECU est validé à partir de 7/20.
 
 ## Technologies
 

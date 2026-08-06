@@ -385,7 +385,7 @@ export function parseGridPages(pagesItems, semester = "1") {
             et: r.et ?? null,
             rat: r.rat ?? null,
             moy: r.moy ?? null,
-            validation: r.s || "",
+            validation: r.moy != null ? (r.moy >= 7 ? "V" : "NV") : (r.s || ""),
           };
         });
       records.push({

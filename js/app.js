@@ -41,11 +41,29 @@ function switchPage(page) {
   if (!pageNames.includes(page)) return;
   navBtns.forEach((b) => b.classList.toggle("active", b.dataset.page === page));
   pageNames.forEach((p) => $("#page-" + p).classList.toggle("hidden", p !== page));
+  setNav(false);
   window.scrollTo(0, 0);
 }
 
 navBtns.forEach((btn) => btn.addEventListener("click", () => switchPage(btn.dataset.page)));
 document.querySelectorAll("[data-go]").forEach((el) => el.addEventListener("click", () => switchPage(el.dataset.go)));
+
+/* ---------- Menu burger (mobile) ---------- */
+
+const navToggle = $("#nav-toggle");
+const nav = document.querySelector(".nav");
+
+function setNav(open) {
+  nav.classList.toggle("open", open);
+  navToggle.classList.toggle("open", open);
+  navToggle.setAttribute("aria-expanded", String(open));
+  navToggle.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
+}
+
+navToggle.addEventListener("click", () => setNav(!nav.classList.contains("open")));
+document.addEventListener("click", (e) => {
+  if (nav.classList.contains("open") && !e.target.closest(".topbar")) setNav(false);
+});
 
 ["dragover", "dragenter"].forEach((evt) =>
   dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.add("dragover"); })

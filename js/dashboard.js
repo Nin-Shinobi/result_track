@@ -1,4 +1,4 @@
-import { mentionOf } from "./lmd.js";
+import { mentionOf, mentionClass } from "./lmd.js";
 
 export const $ = (sel) => document.querySelector(sel);
 
@@ -9,9 +9,14 @@ export function fmt(n, digits = 1) {
 
 export function noteClass(n) {
   if (n === null) return "bad";
-  if (n >= 10) return "good";
-  if (n >= 8) return "warn";
+  if (n >= 14) return "good";
+  if (n >= 10) return "warn";
   return "bad";
+}
+
+export function ecuNoteClass(n) {
+  if (n === null) return "bad";
+  return n >= 7 ? "good" : "bad";
 }
 
 export function escapeHtml(s = "") {
@@ -99,18 +104,18 @@ export function renderClass(container, stats, students) {
   barChart(container.querySelector("#class-histogram"), stats.distribution.map((d) => ({
     label: d.label,
     value: d.count,
-    class: d.label === "<10" ? "bad" : "good",
+    class: d.label === "<10" ? "bad" : d.label === "10-12" || d.label === "12-14" ? "warn" : "good",
   })), { scale: "auto", max: 1, emptyText: "Aucune moyenne calculée" });
 
-  donut(container.querySelector("#class-semesters"), stats.tauxReussite, "#111315", `${fmt(stats.tauxReussite)}%`, [
-    { label: "Réussite", value: stats.reussite, color: "#111315", unit: "" },
+  donut(container.querySelector("#class-semesters"), stats.tauxReussite, "#1a7f37", `${fmt(stats.tauxReussite)}%`, [
+    { label: "Réussite", value: stats.reussite, color: "#1a7f37", unit: "" },
     { label: "En retard", value: stats.effectif - stats.reussite, color: "#e4002b", unit: "" },
   ]);
 
   const table = container.querySelector("#class-ranking");
   table.innerHTML = `
     <thead>
-      <tr><th>Rang</th><th>Étudiant</th><th>Moyenne</th><th>Mention</th><th>Semestres validés</th><th>Crédits</th></tr>
+      <tr><th class="num">Rang</th><th>Étudiant</th><th class="num">Moyenne</th><th>Mention</th><th class="num">Semestres validés</th><th class="num">Crédits</th></tr>
     </thead>
     <tbody>
       ${students.map((s, i) => `
@@ -118,7 +123,7 @@ export function renderClass(container, stats, students) {
           <td class="num">${i + 1}</td>
           <td><strong>${escapeHtml(s.nomDisplay)}</strong></td>
           <td class="num"><span class="note-badge ${noteClass(s.moyenne)}">${fmt(s.moyenne)}</span></td>
-          <td><span class="pill ${s.moyenne >= 10 ? "green" : "red"}">${escapeHtml(s.mention)}</span></td>
+          <td><span class="pill ${mentionClass(s.moyenne)}">${escapeHtml(s.mention)}</span></td>
           <td class="num">${s.semestres.filter((sm) => sm.valide).length}/${s.semestres.length}</td>
           <td class="num">${s.creditsAcquis}/${s.creditsTotal}</td>
         </tr>`).join("")}
@@ -152,6 +157,11 @@ function statusPill(u) {
     : '<span class="pill red">Non validée</span>';
 }
 
+function ecuValidation(e) {
+  if (e.moy !== null && e.moy !== undefined) return e.moy >= 7 ? "V" : "NV";
+  return /^v$/i.test(e.validation || "") ? "V" : "";
+}
+
 function ecuDetailRows(u) {
   if (!u.ecus || !u.ecus.length) return "";
   return `
@@ -162,20 +172,23 @@ function ecuDetailRows(u) {
           <div class="table-wrap">
             <table class="table table-sm">
               <thead>
-                <tr><th>ECU</th><th>CC</th><th>ET</th><th>Rat.</th><th>Moyenne</th><th>Valid.</th></tr>
+                <tr><th>ECU</th><th class="num">CC</th><th class="num">ET</th><th class="num">Rat.</th><th class="num">Moyenne</th><th>Valid.</th></tr>
               </thead>
               <tbody>
-                ${u.ecus.map((e) => `
-                  <tr>
-                    <td>${escapeHtml(e.intitule)}</td>
-                    <td class="num">${fmt(e.cc)}</td>
-                    <td class="num">${fmt(e.et)}</td>
-                    <td class="num">${fmt(e.rat)}</td>
-                    <td class="num"><span class="note-badge ${noteClass(e.moy)}">${fmt(e.moy)}</span></td>
-                    <td>${e.validation
-                      ? `<span class="pill ${e.validation === "V" ? "green" : "red"}">${escapeHtml(e.validation)}</span>`
-                      : ""}</td>
-                  </tr>`).join("")}
+                ${u.ecus.map((e) => {
+                  const v = ecuValidation(e);
+                  return `
+                    <tr>
+                      <td>${escapeHtml(e.intitule)}</td>
+                      <td class="num">${fmt(e.cc)}</td>
+                      <td class="num">${fmt(e.et)}</td>
+                      <td class="num">${fmt(e.rat)}</td>
+                      <td class="num"><span class="note-badge ${ecuNoteClass(e.moy)}">${fmt(e.moy)}</span></td>
+                      <td>${v
+                        ? `<span class="pill ${v === "V" ? "green" : "red"}">${escapeHtml(v)}</span>`
+                        : ""}</td>
+                    </tr>`;
+                }).join("")}
               </tbody>
             </table>
           </div>
@@ -194,16 +207,18 @@ export function renderStudent(root, student, stats, students) {
   root.querySelector("#student-subtitle").textContent =
     `${student.nbUes} UE · ${student.nbUesValidees} validées · ${student.nbAbsences} absence(s)`;
 
+  const mentionTint = { green: "#1a7f37", amber: "#9a6b00", red: "#e4002b" };
   root.querySelector("#stat-moyenne").textContent = fmt(student.moyenne);
-  root.querySelector("#stat-moyenne").style.color = noteClass(student.moyenne) === "good" ? "#111315" : "#e4002b";
+  root.querySelector("#stat-moyenne").style.color = mentionTint[mentionClass(student.moyenne)] || "#111315";
   root.querySelector("#stat-mention").textContent = student.mention;
+  root.querySelector("#stat-mention").style.color = mentionTint[mentionClass(student.moyenne)] || "#111315";
   root.querySelector("#stat-credits").textContent = `${student.creditsAcquis}/${student.creditsTotal}`;
   root.querySelector("#stat-rang").textContent = student.rang ? `${student.rang}/${students.length}` : "";
 
   barChart(root.querySelector("#student-semester-chart"), student.semestres.map((sm) => ({
     label: sm.name,
     value: sm.moyenne,
-    class: sm.valide ? "good" : "bad",
+    class: noteClass(sm.moyenne),
     title: `${sm.name} : ${fmt(sm.moyenne)}`,
   })), { max: 20, emptyText: "Aucun semestre" });
 
@@ -228,7 +243,7 @@ export function renderStudent(root, student, stats, students) {
       <div class="table-wrap">
         <table class="table">
           <thead>
-            <tr><th>UE</th><th>Intitulé</th><th>Note</th><th>Crédits</th><th>Statut</th></tr>
+            <tr><th>UE</th><th>Intitulé</th><th class="num">Note</th><th class="num">Crédits</th><th>Statut</th></tr>
           </thead>
           <tbody>
             ${sm.ues.map((u) => `
