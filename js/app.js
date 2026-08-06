@@ -2,7 +2,7 @@ import { parsePDF, parseWithMapping, FIELDS } from "./pdfParser.js";
 import { parseGridPDF, hasGridMarkers } from "./grilleParser.js";
 import { groupStudents, classStats } from "./lmd.js";
 import {
-  $, fmt, escapeHtml, renderClass, populateSelect, renderStudent, clearStudent, initials,
+  $, escapeHtml, renderClass, populateSelect, renderStudent, clearStudent,
 } from "./dashboard.js";
 
 const state = {
@@ -228,7 +228,11 @@ tabButtons.forEach((btn) => {
 });
 
 function switchTab(tab) {
-  tabButtons.forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
+  tabButtons.forEach((b) => {
+    const on = b.dataset.tab === tab;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-selected", String(on));
+  });
   $("#view-class").classList.toggle("hidden", tab !== "class");
   $("#view-student").classList.toggle("hidden", tab !== "student");
 }
@@ -241,9 +245,43 @@ function renderClassView() {
 
 /* ---------- Student view ---------- */
 
+const studentSelect = $("#student-select");
+const searchInput = $("#student-search");
+const searchClear = $("#search-clear");
+const searchCount = $("#search-count");
+const searchGo = $("#search-go");
+let lastFiltered = [];
+
+function applyFilter(q) {
+  q = (q || "").trim().toLowerCase();
+  const prev = studentSelect.value;
+  lastFiltered = q
+    ? state.students.filter((s) => s.nomDisplay.toLowerCase().includes(q) || s.key.includes(q))
+    : state.students;
+  populateSelect(studentSelect, lastFiltered, prev);
+  if (lastFiltered.length) selectStudent(studentSelect.value);
+}
+
+function updateSearchUI() {
+  const q = searchInput.value.trim();
+  searchClear.hidden = q === "";
+  if (q && lastFiltered.length) {
+    searchCount.textContent = `${lastFiltered.length} résultat${lastFiltered.length > 1 ? "s" : ""}`;
+    searchCount.hidden = false;
+  } else {
+    searchCount.hidden = true;
+  }
+}
+
+function clearSearch() {
+  searchInput.value = "";
+  searchCount.hidden = true;
+  searchClear.hidden = true;
+}
+
 function renderStudentView() {
-  const select = $("#student-select");
-  populateSelect(select, state.students, state.currentKey);
+  lastFiltered = state.students;
+  populateSelect(studentSelect, state.students, state.currentKey);
   selectStudent(state.currentKey);
 }
 
@@ -258,24 +296,55 @@ function selectStudent(key) {
   renderStudent($("#view-student"), student, state.stats, state.students);
 }
 
-$("#student-select").addEventListener("change", (e) => {
-  selectStudent(e.target.value);
+function validateSearch() {
+  if (!studentSelect.options.length) return;
+  selectStudent(studentSelect.value);
+  switchTab("student");
+}
+
+searchInput.addEventListener("input", () => {
+  applyFilter(searchInput.value);
+  updateSearchUI();
 });
 
-$("#student-search").addEventListener("input", (e) => {
-  const q = e.target.value.trim().toLowerCase();
-  const select = $("#student-select");
-  const prev = select.value;
-  const filtered = q
-    ? state.students.filter((s) => s.nomDisplay.toLowerCase().includes(q) || s.key.includes(q))
-    : state.students;
-  populateSelect(select, filtered, prev);
-  if (filtered.length) selectStudent(select.value);
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault();
+    const opts = studentSelect.options;
+    if (!opts.length) return;
+    let idx = studentSelect.selectedIndex;
+    idx = e.key === "ArrowDown" ? Math.min(idx + 1, opts.length - 1) : Math.max(idx - 1, 0);
+    studentSelect.selectedIndex = idx;
+    selectStudent(opts[idx].value);
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    validateSearch();
+  } else if (e.key === "Escape") {
+    clearSearch();
+    applyFilter("");
+  }
+});
+
+searchGo.addEventListener("click", () => {
+  validateSearch();
+  searchInput.focus();
+});
+
+searchClear.addEventListener("click", () => {
+  clearSearch();
+  applyFilter("");
+  searchInput.focus();
+});
+
+studentSelect.addEventListener("change", (e) => {
+  clearSearch();
+  selectStudent(e.target.value);
+  switchTab("student");
 });
 
 document.addEventListener("student-select", (e) => {
-  $("#student-search").value = "";
-  $("#student-select").value = e.detail.key;
+  clearSearch();
+  studentSelect.value = e.detail.key;
   selectStudent(e.detail.key);
   switchTab("student");
 });

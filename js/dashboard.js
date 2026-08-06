@@ -43,7 +43,7 @@ export function initials(s = "") {
 /* ---------- Charts ---------- */
 
 export function barChart(container, entries, opts = {}) {
-  const { max = 20, emptyText = "Aucune donnée" } = opts;
+  const { max = 20, emptyText = "Aucune donnée", showValue = false } = opts;
   container.innerHTML = "";
   const realEntries = entries.filter((e) => e.value !== null && e.value !== undefined);
   if (!realEntries.length) {
@@ -52,7 +52,7 @@ export function barChart(container, entries, opts = {}) {
   }
   const maxValue = opts.scale === "auto" ? Math.max(...realEntries.map((e) => e.value)) : max;
   const wrap = document.createElement("div");
-  wrap.className = "bars";
+  wrap.className = "bars" + (showValue ? " show-values" : "");
   for (const e of realEntries) {
     const col = document.createElement("div");
     col.className = "bar-col";
@@ -76,12 +76,12 @@ export function donut(container, percentage, color, centerText, segments) {
   container.innerHTML = "";
   const wrap = document.createElement("div");
   wrap.className = "donut-wrap";
-  const donut = document.createElement("div");
-  donut.className = "donut";
+  const donutEl = document.createElement("div");
+  donutEl.className = "donut";
   const clamped = Math.max(0, Math.min(100, percentage));
-  donut.style.background = `conic-gradient(${color} ${clamped * 3.6}deg, var(--track) 0deg)`;
-  donut.innerHTML = `<div class="donut-center">${escapeHtml(centerText)}</div>`;
-  wrap.appendChild(donut);
+  donutEl.style.background = `conic-gradient(${color} ${clamped * 3.6}deg, var(--track) 0deg)`;
+  donutEl.innerHTML = `<div class="donut-center">${escapeHtml(centerText)}</div>`;
+  wrap.appendChild(donutEl);
   if (segments && segments.length) {
     const legend = document.createElement("div");
     legend.className = "donut-legend";
@@ -101,17 +101,17 @@ export function donut(container, percentage, color, centerText, segments) {
 export function renderClass(container, stats, students) {
   const cards = container.querySelector("#class-cards");
   cards.innerHTML = [
-    card(`${stats.effectif}`, "Étudiants"),
-    card(fmt(stats.moyenneClasse), "Moyenne de la classe", mentionClass(stats.moyenneClasse)),
-    card(`${stats.reussite}`, "Étudiants ≥ 10"),
-    card(`${fmt(stats.tauxReussite)}%`, "Taux de réussite"),
+    card(`${stats.effectif}`, "Étudiants", "", "01"),
+    card(fmt(stats.moyenneClasse), "Moyenne de la classe", mentionClass(stats.moyenneClasse), "02"),
+    card(`${stats.reussite}`, "Étudiants ≥ 10", "", "03"),
+    card(`${fmt(stats.tauxReussite)}%`, "Taux de réussite", "", "04"),
   ].join("");
 
   barChart(container.querySelector("#class-histogram"), stats.distribution.map((d) => ({
     label: d.label,
     value: d.count,
     class: d.label === "<10" ? "bad" : d.label === "10-12" ? "warn" : "good",
-  })), { scale: "auto", max: 1, emptyText: "Aucune moyenne calculée" });
+  })), { scale: "auto", max: 1, showValue: true, emptyText: "Aucune moyenne calculée" });
 
   donut(container.querySelector("#class-semesters"), stats.tauxReussite, "#1a7f37", `${fmt(stats.tauxReussite)}%`, [
     { label: "Réussite", value: stats.reussite, color: "#1a7f37", unit: "" },
@@ -119,13 +119,15 @@ export function renderClass(container, stats, students) {
   ]);
 
   const table = container.querySelector("#class-ranking");
+  const semsLabels = `${stats.effectif} étudiant${stats.effectif > 1 ? "s" : ""}`;
   table.innerHTML = `
+    <caption class="table-caption">${semsLabels} · classement par moyenne décroissante</caption>
     <thead>
       <tr><th class="num">Rang</th><th>Étudiant</th><th class="num">Moyenne</th><th>Mention</th><th class="num">Semestres validés</th><th class="num">Crédits</th></tr>
     </thead>
     <tbody>
       ${students.map((s, i) => `
-        <tr class="rank-row" data-key="${escapeHtml(s.key)}">
+        <tr class="rank-row${i < 3 ? " rank-top" : ""}" data-key="${escapeHtml(s.key)}" title="${escapeHtml(s.nomDisplay)} : voir le détail">
           <td class="num">${i + 1}</td>
           <td><strong>${escapeHtml(s.nomDisplay)}</strong></td>
           <td class="num"><span class="note-badge ${mentionClass(s.moyenne)}">${fmt(s.moyenne)}</span></td>
@@ -143,15 +145,19 @@ export function renderClass(container, stats, students) {
   });
 }
 
-function card(value, label, color = "") {
-  return `<div class="card stat-card"><div class="stat-value ${color}">${value}</div><div class="stat-label">${label}</div></div>`;
+function card(value, label, color = "", num = "") {
+  return `<div class="card stat-card ${color}"><span class="card-index numeral">${num}</span><div class="stat-value">${value}</div><div class="stat-label">${label}</div></div>`;
 }
 
 /* ---------- Student view ---------- */
 
 export function populateSelect(select, students, selectedKey) {
-  select.innerHTML = students.map((s) =>
-    `<option value="${escapeHtml(s.key)}" ${s.key === selectedKey ? "selected" : ""}>${escapeHtml(s.nomDisplay)}</option>`
+  const sorted = [...students].sort((a, b) =>
+    a.nomDisplay.localeCompare(b.nomDisplay, "fr", { sensitivity: "base" })
+  );
+  const effSelected = sorted.some((s) => s.key === selectedKey) ? selectedKey : (sorted[0]?.key ?? "");
+  select.innerHTML = sorted.map((s) =>
+    `<option value="${escapeHtml(s.key)}" ${s.key === effSelected ? "selected" : ""}>${escapeHtml(s.nomDisplay)}</option>`
   ).join("");
 }
 
@@ -209,15 +215,19 @@ export function renderStudent(root, student, stats, students) {
   content.classList.remove("hidden");
 
   root.querySelector("#student-avatar").textContent = initials(student.nomDisplay);
-  root.querySelector("#student-name").textContent = student.nomDisplay;
-  root.querySelector("#student-subtitle").textContent =
-    `${student.nbUes} UE · ${student.nbUesValidees} validées · ${student.nbAbsences} absence(s)`;
-
   const mentionTint = { green: "#1a7f37", amber: "#9a6b00", red: "#e4002b" };
+  const mc = mentionClass(student.moyenne);
+  root.querySelector("#student-avatar").style.background = mentionTint[mc] || "#111315";
+  root.querySelector("#student-name").textContent = student.nomDisplay;
+  const v = student.nbUesValidees;
+  const a = student.nbAbsences;
+  root.querySelector("#student-subtitle").textContent =
+    `${student.nbUes} UE · ${v} validée${v > 1 ? "s" : ""} · ${a} absence${a > 1 ? "s" : ""}`;
+
   root.querySelector("#stat-moyenne").textContent = fmt(student.moyenne);
-  root.querySelector("#stat-moyenne").style.color = mentionTint[mentionClass(student.moyenne)] || "#111315";
+  root.querySelector("#stat-moyenne").style.color = mentionTint[mc] || "#111315";
   root.querySelector("#stat-mention").textContent = student.mention;
-  root.querySelector("#stat-mention").style.color = mentionTint[mentionClass(student.moyenne)] || "#111315";
+  root.querySelector("#stat-mention").style.color = mentionTint[mc] || "#111315";
   root.querySelector("#stat-credits").textContent = `${student.creditsAcquis}/${student.creditsTotal}`;
   root.querySelector("#stat-rang").textContent = student.rang ? `${student.rang}/${students.length}` : "";
 

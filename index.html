@@ -3,7 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ResultTrack · Grille de notes LMD</title>
+  <title>ResultTrack | Grille de notes LMD : moyennes, mentions, crédits</title>
+  <meta name="description" content="ResultTrack extrait les notes d'une grille PDF LMD et calcule les moyennes pondérées, les mentions, la validation des ECU, les crédits et le classement de chaque étudiant. 100 % local, sans envoi de données." />
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#e4002b" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:title" content="ResultTrack — Grille de notes LMD" />
+  <meta property="og:description" content="De votre grille PDF au tableau de bord : moyennes pondérées, mentions LMD, validation des ECU, crédits et classement. Tout se passe dans votre navigateur." />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="ResultTrack — Grille de notes LMD" />
+  <meta name="twitter:description" content="Moyennes pondérées, mentions LMD, validation des ECU, crédits et classement, extraits d'une grille PDF. 100 % local." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -39,7 +49,7 @@
       <section id="page-home" class="page">
         <div class="band home-hero">
           <div class="span-6 home-hero-copy">
-            <p class="kicker">Grille de notes · Système LMD</p>
+            <p class="kicker">Grille de notes | Système LMD</p>
             <h2 class="shead home-title">De votre grille PDF au tableau de bord</h2>
             <p class="lead">Importez votre grille de notes au format PDF. ResultTrack extrait les notes, calcule les moyennes et les mentions LMD, puis affiche le bilan de la classe et de chaque étudiant.</p>
             <button class="btn btn-primary" data-go="upload">Charger une grille</button>
@@ -158,13 +168,20 @@
         <!-- ===== Dashboard ===== -->
         <section id="dashboard-section" class="span-13 hidden">
           <div class="dashboard-header">
-            <div class="tabs">
-              <button class="tab-btn active" data-tab="class">Ma classe</button>
-              <button class="tab-btn" data-tab="student">Étudiant</button>
+            <div class="tabs" role="tablist">
+              <button class="tab-btn active" data-tab="class" role="tab" aria-selected="true">Ma classe</button>
+              <button class="tab-btn" data-tab="student" role="tab" aria-selected="false">Étudiant</button>
             </div>
             <div class="student-picker">
-              <input type="search" id="student-search" placeholder="Rechercher un étudiant…" autocomplete="off" />
-              <select id="student-select"></select>
+              <div class="search-box">
+                <div class="search-field">
+                  <input type="search" id="student-search" placeholder="Rechercher un étudiant…" autocomplete="off" aria-label="Rechercher un étudiant" />
+                  <button type="button" id="search-clear" class="search-clear" aria-label="Effacer la recherche" hidden>×</button>
+                </div>
+                <button type="button" id="search-go" class="search-go" aria-label="Valider la recherche">Valider</button>
+              </div>
+              <span id="search-count" class="search-count" hidden></span>
+              <select id="student-select" aria-label="Choisir un étudiant"></select>
               <button id="reload-btn" class="btn btn-ghost" title="Charger une autre grille">↺</button>
             </div>
           </div>
@@ -226,6 +243,19 @@
     </div>
   </footer>
 
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "ResultTrack",
+    "alternateName": "Grille de notes LMD",
+    "description": "Outil local qui extrait les notes d'une grille PDF LMD et calcule moyennes pondérées, mentions, validation des ECU, crédits et classement.",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Any",
+    "inLanguage": "fr",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+  }
+  </script>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>
