@@ -867,11 +867,25 @@ body {
 @media (max-width: 1000px) {
   .upload-cell { grid-column: 1 / -1; }
   .stat-card { grid-column: span 6; }
-  .span-8, .span-7, .span-6 { grid-column: 1 / -1; }
+  .span-8, .span-7, .span-6, .span-5, .span-4 { grid-column: 1 / -1; }
   .student-hero-info, .student-hero-stats { grid-column: 1 / -1; }
   .student-hero-stats { grid-template-columns: repeat(4, 1fr); }
   .home-hero-copy, .home-steps { grid-column: 1 / -1; }
   .feature-block { grid-column: span 6; }
+}
+@media (min-width: 641px) and (max-width: 1000px) {
+  .about-card {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto;
+    grid-auto-flow: column;
+    column-gap: 24px;
+  }
+  .about-card h3 { margin: 0 0 8px; }
+  .about-card > :nth-child(n+3) {
+    border-left: 1px solid var(--line);
+    padding-left: 24px;
+  }
 }
 @media (max-width: 720px) {
   .student-hero-stats { grid-template-columns: 1fr 1fr; }
