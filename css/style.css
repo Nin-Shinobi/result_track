@@ -264,6 +264,13 @@ body {
 .feature-block p { font-size: 14px; color: var(--ink-soft); margin-top: 4px; }
 
 /* ---------- À propos ---------- */
+#page-about .shead { font-size: clamp(24px, 4vw, 28px); margin-top: 4px; }
+#page-about h3.shead {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: normal;
+  margin: calc(var(--bl) * 4) 0 8px;
+}
 .about-card h3 { font-size: 14px; text-transform: uppercase; letter-spacing: .08em; margin-top: 16px; }
 .about-card h3:first-child { margin-top: 0; }
 .about-card p { font-size: 14px; color: var(--ink-soft); }
@@ -850,20 +857,11 @@ body {
   text-transform: uppercase;
   letter-spacing: .14em;
   color: var(--ink-soft);
-  align-self: center;
-}
-.footer-meta {
-  grid-column: span 2;
-  text-align: right;
-  font-family: var(--mono);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .14em;
-  color: var(--ink-soft);
+  text-align: center;
   align-self: center;
 }
 .footer-github {
-  grid-column: span 1;
+  grid-column: span 3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -957,9 +955,10 @@ body {
   .dropzone h2 { font-size: 22px; }
   .about-table { max-width: 100%; }
   .footer-grid { grid-template-columns: 1fr; row-gap: var(--lh); }
-  .footer .brand, .footer-note, .footer-meta, .footer-github { grid-column: 1 / -1; }
-  .footer-meta { text-align: left; }
-  .footer-github { justify-self: start; }
+  .footer .brand, .footer-note, .footer-github { grid-column: 1 / -1; }
+  .footer .brand { justify-content: center; }
+  .footer-note { text-align: center; }
+  .footer-github { justify-self: center; }
 }
 @media (max-width: 420px) {
   :root { --margin: 16px; --pad: 40px; }
