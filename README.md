@@ -130,4 +130,4 @@ PDF (fichier déposé)
 
 ## Licence
 
-À définir — projet interne.
+Projet développé par [Nin-Shinobi](https://github.com/Nin-Shinobi) sous **licence libre (MIT)**. Vous pouvez librement utiliser, modifier et redistribuer ce projet, à condition de conserver la mention de l'auteur.

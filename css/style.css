@@ -853,7 +853,7 @@ body {
   align-self: center;
 }
 .footer-meta {
-  grid-column: span 3;
+  grid-column: span 2;
   text-align: right;
   font-family: var(--mono);
   font-size: 10px;
@@ -861,6 +861,21 @@ body {
   letter-spacing: .14em;
   color: var(--ink-soft);
   align-self: center;
+}
+.footer-github {
+  grid-column: span 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--ink);
+  border-radius: 50%;
+  justify-self: end;
+}
+.footer-github:hover {
+  background: var(--ink);
+  color: var(--paper);
 }
 
 /* ---------- Responsive ---------- */
@@ -942,8 +957,9 @@ body {
   .dropzone h2 { font-size: 22px; }
   .about-table { max-width: 100%; }
   .footer-grid { grid-template-columns: 1fr; row-gap: var(--lh); }
-  .footer .brand, .footer-note, .footer-meta { grid-column: 1 / -1; }
+  .footer .brand, .footer-note, .footer-meta, .footer-github { grid-column: 1 / -1; }
   .footer-meta { text-align: left; }
+  .footer-github { justify-self: start; }
 }
 @media (max-width: 420px) {
   :root { --margin: 16px; --pad: 40px; }
